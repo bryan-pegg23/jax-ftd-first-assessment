@@ -47,12 +47,12 @@ public class ClientHandler implements Runnable {
 			this.context = JAXBContext.newInstance(ClientMessage.class);
 			this.content = JAXBContext.newInstance(ServerResponse.class);
 
-			marshaller = context.createMarshaller();
+			marshaller = content.createMarshaller();
 			marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-			unmarshaller = content.createUnmarshaller();
+			unmarshaller = context.createUnmarshaller();
 			unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
 			unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
 		} catch (JAXBException e) {
@@ -65,14 +65,17 @@ public class ClientHandler implements Runnable {
 		while (true) {
 			log.debug("Started a connection");
 			try {
-				log.info("you have made it to the try in CH");
+				log.info("you have made it to the try block in CH");
 				String echo = this.reader.readLine();
-				//log.debug("{}", echo);
+				log.debug("{}", echo);
+				
 				
 				StringReader sr = new StringReader(echo);
 
 				ClientMessage message = (ClientMessage) unmarshaller.unmarshal(sr);
+				
 				if (message.getCommand() == "register") {
+					log.info("you made it to the register if staement");
 					StringWriter sw = new StringWriter();
 					ServerResponse<String> temp = CreateUser.newUser(message.getContent());
 					marshaller.marshal(temp.getData(), sw);
