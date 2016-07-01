@@ -3,6 +3,7 @@ package com.cooksys.ftd.assessment.filesharing.dao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -13,17 +14,15 @@ import com.cooksys.ftd.assessment.filesharing.server.ClientHandler;
 
 public class UserDao extends AbstractDao {
 
-	private Logger log = LoggerFactory.getLogger(ClientHandler.class);
-
+private Logger log = LoggerFactory.getLogger(ClientHandler.class);
+	
 	public User createUser(User user) {
 		try {
-			String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-			PreparedStatement stmt = this.getConn().prepareStatement(sql);
-
+			String sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+			PreparedStatement stmt = this.getConn().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			stmt.setString(1, user.getUsername());
 			stmt.setString(2, user.getPassword());
 			stmt.executeUpdate();
-
 			ResultSet rs = stmt.getGeneratedKeys();
 			if (rs.next()) {
 				user.setUserId(rs.getShort(1));
@@ -31,13 +30,13 @@ public class UserDao extends AbstractDao {
 		} catch (SQLException e) {
 			log.error("An SQL error occured.", e);
 		}
-
+		
 		return user;
 	}
-
-	public Optional<String> getUserPassword(String username) {
+	
+	public Optional<String> getUserPassword (String username) {
 		try {
-			String sql = "SELECT password FROM users WHERE username = ?";
+			String sql = "SELECT password FROM user WHERE username = ?";
 			PreparedStatement stmt = this.getConn().prepareStatement(sql);
 			stmt.setString(1, username);
 			ResultSet rs = stmt.executeQuery();
@@ -47,13 +46,13 @@ public class UserDao extends AbstractDao {
 		} catch (SQLException e) {
 			log.error("An SQL error occured.", e);
 		}
-
+		
 		return Optional.empty();
 	}
-
-	public Optional<Short> getUserId(String username) {
+	
+	public Optional<Short> getUserId (String username) {
 		try {
-			String sql = "SELECT user_id FROM users WHERE username = ?";
+			String sql = "SELECT user_id FROM user WHERE username = ?";
 			PreparedStatement stmt = this.getConn().prepareStatement(sql);
 			stmt.setString(1, username);
 			ResultSet rs = stmt.executeQuery();
@@ -63,7 +62,7 @@ public class UserDao extends AbstractDao {
 		} catch (SQLException e) {
 			log.error("An SQL error occured.", e);
 		}
-
+		
 		return Optional.empty();
 	}
 }

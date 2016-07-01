@@ -9,15 +9,17 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement
 public class ClientMessage {
 	
-	private Logger log = LoggerFactory.getLogger(ClientMessage.class);
-
 	@XmlElement(name = "command")
 	private String command;
 	@XmlElement(name = "content")
 	private String content;
-
+	
+	/*public ClientMessage() {
+		// this.command;
+		// this.content;
+	}*/
+	
 	public String getCommand() {
-		//log.debug("you have reached the get command");
 		return this.command;
 	}
 	
@@ -32,15 +34,4 @@ public class ClientMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	
-	public ClientMessage() {
-		
-	}
-
-	@Override
-	public String toString() {
-		return "ClientMessage [log=" + log + ", command=" + command + ", content=" + content + "]";
-	}
-	
-	
 }

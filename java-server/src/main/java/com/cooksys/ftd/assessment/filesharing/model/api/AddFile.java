@@ -13,7 +13,7 @@ public class AddFile {
 		ServerResponse<String> output = new ServerResponse<String>();
 		String[] args = userInfo.split(" ");
 		
-		short id = GetUser.getId(args[0]).getData();
+		short id = GetUser.getId(args[0], null).getData();
 		userFile.setAbsolutePath(args[1]);
 		userFile.setFileData(Base64.getDecoder().decode(args[2]));
 		

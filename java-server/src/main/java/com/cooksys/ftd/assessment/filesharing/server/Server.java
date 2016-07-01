@@ -1,9 +1,6 @@
 package com.cooksys.ftd.assessment.filesharing.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -15,42 +12,33 @@ import com.cooksys.ftd.assessment.filesharing.dao.FileDao;
 import com.cooksys.ftd.assessment.filesharing.dao.UserDao;
 
 public class Server implements Runnable {
-	private Logger log = LoggerFactory.getLogger(Server.class);
-
+private Logger log = LoggerFactory.getLogger(Server.class);
+	
 	private ExecutorService executor;
-
+	
 	private FileDao fileDao;
 	private UserDao userDao;
-
+	
 	@Override
 	public void run() {
-		log.debug("Server run started");
 		try (ServerSocket serverSocket = new ServerSocket(667)) {
-			log.info("Server started on port {}", 667);
+			log.info("Starting server.");
 			while (true) {
 				Socket socket = serverSocket.accept();
 				ClientHandler handler = this.createClientHandler(socket);
 				this.executor.execute(handler);
 			}
 		} catch (IOException e) {
-			this.log.error(
-					"The server encountered a fatal error while listening for more connections. Shutting down after error log.",
-					e);
+			this.log.error("Fatal server connection error while listening for new connections.  Shutting down after error log.", e);
 		}
 	}
-
+	
 	public ClientHandler createClientHandler(Socket socket) throws IOException {
-		ClientHandler handler = new ClientHandler();
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		handler.setReader(reader);
-
-		PrintWriter writer = new PrintWriter(socket.getOutputStream());
-		handler.setWriter(writer);
-
-		handler.setUserDao(this.userDao);
-		handler.setFileDao(this.fileDao);
-
+		ClientHandler handler = new ClientHandler(socket);
+		
+		handler.setUserDao(userDao);
+		handler.setFileDao(fileDao);
+		
 		return handler;
 	}
 
