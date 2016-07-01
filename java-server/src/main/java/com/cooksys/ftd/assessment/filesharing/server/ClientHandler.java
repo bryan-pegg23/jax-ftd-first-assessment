@@ -13,20 +13,28 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cooksys.ftd.assessment.filesharing.dao.*;
-import com.cooksys.ftd.assessment.filesharing.model.api.*;
+import com.cooksys.ftd.assessment.filesharing.dao.FileDao;
+import com.cooksys.ftd.assessment.filesharing.dao.UserDao;
+import com.cooksys.ftd.assessment.filesharing.model.api.AddFile;
+import com.cooksys.ftd.assessment.filesharing.model.api.CreateUser;
+import com.cooksys.ftd.assessment.filesharing.model.api.GetUser;
+import com.cooksys.ftd.assessment.filesharing.model.api.IndexFile;
+import com.cooksys.ftd.assessment.filesharing.model.api.SendFile;
+import com.cooksys.ftd.assessment.filesharing.model.api.ServerResponse;
 import com.cooksys.ftd.assessment.filesharing.model.db.ClientMessage;
 
 public class ClientHandler implements Runnable {
 	
-	private Logger log = LoggerFactory.getLogger(ClientHandler.class);
+private Logger log = LoggerFactory.getLogger(ClientHandler.class);
 	
 	private BufferedReader reader;
 	private PrintWriter writer;
 	
+	private JAXBContext context;
 	private JAXBContext content;
 	private Marshaller marshaller;
 	private Unmarshaller unmarshaller;
@@ -34,49 +42,61 @@ public class ClientHandler implements Runnable {
 	private FileDao fileDao;
 	private UserDao userDao;
 	
+	public ClientHandler() {
+		try {
+			this.context = JAXBContext.newInstance(ClientMessage.class);
+			this.content = JAXBContext.newInstance(ServerResponse.class);
+			
+			marshaller = context.createMarshaller();
+			marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+			marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			unmarshaller = content.createUnmarshaller();
+			unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+			unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+		} catch (JAXBException e) {
+			log.error("Error creating client.", e);
+		}
+	}
+	
 	@Override
 	public void run() {
+		log.debug("Started a connection");
 		try {
+			log.info("you have made it to the try in CH");
+			//String echo = this.reader.readLine();
 			StringReader sr = new StringReader(this.reader.readLine());
-			this.content = JAXBContext.newInstance(ClientMessage.class);
+			
+			//og.info("{}", echo);
 			ClientMessage message = (ClientMessage) unmarshaller.unmarshal(sr);
 			if (message.getCommand() == "register") {
 				StringWriter sw = new StringWriter();
 				ServerResponse<String> temp = CreateUser.newUser(message.getContent());
-				this.content = JAXBContext.newInstance(ServerResponse.class);
-				marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 				marshaller.marshal(temp.getData(), sw);
 				this.writer.println(sw.toString());
 				this.writer.flush();
 			} else if (message.getCommand() == "login") {
 				StringWriter sw = new StringWriter();
 				ServerResponse<String> temp = GetUser.getPassword(message.getContent());
-				this.content = JAXBContext.newInstance(ServerResponse.class);
-				marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 				marshaller.marshal(temp.getData(), sw);
 				this.writer.println(sw.toString());
 				this.writer.flush();
 			} else if (message.getCommand() == "files") {
 				StringWriter sw = new StringWriter();
 				ServerResponse<List<String>> temp = IndexFile.getFileList(message.getContent());
-				this.content = JAXBContext.newInstance(ServerResponse.class);
-				marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 				marshaller.marshal(temp.getData(), sw);
 				this.writer.println(sw.toString());
 				this.writer.flush();
 			} else if (message.getCommand() == "upload") {
 				StringWriter sw = new StringWriter();
 				ServerResponse<String> temp = AddFile.newFile(message.getContent());
-				this.content = JAXBContext.newInstance(ServerResponse.class);
-				marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 				marshaller.marshal(temp.getData(), sw);
 				this.writer.println(sw.toString());
 				this.writer.flush();
 			} else if (message.getCommand() == "download") {
 				StringWriter sw = new StringWriter();
 				ServerResponse<String> temp = SendFile.getFile(message.getContent());
-				this.content = JAXBContext.newInstance(ServerResponse.class);
-				marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 				marshaller.marshal(temp.getData(), sw);
 				this.writer.println(sw.toString());
 				this.writer.flush();

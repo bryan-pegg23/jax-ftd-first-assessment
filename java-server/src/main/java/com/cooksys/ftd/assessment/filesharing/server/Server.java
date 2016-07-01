@@ -11,20 +11,19 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cooksys.ftd.assessment.filesharing.dao.*;
-import com.cooksys.ftd.assessment.filesharing.server.ClientHandler;
+import com.cooksys.ftd.assessment.filesharing.dao.FileDao;
+import com.cooksys.ftd.assessment.filesharing.dao.UserDao;
 
 public class Server implements Runnable {
-	
 	private Logger log = LoggerFactory.getLogger(Server.class);
-	
+
 	private ExecutorService executor;
-	
+
 	private FileDao fileDao;
 	private UserDao userDao;
-	
+
 	@Override
-	public void run() { // need to start server socket
+	public void run() {
 		try (ServerSocket serverSocket = new ServerSocket(667)) {
 			log.info("Starting server.");
 			while (true) {
@@ -33,22 +32,24 @@ public class Server implements Runnable {
 				this.executor.execute(handler);
 			}
 		} catch (IOException e) {
-			this.log.error("Fatal server connection error while listening for new connections.  Shutting down after error log.", e);
+			this.log.error(
+					"Fatal server connection error while listening for new connections.  Shutting down after error log.",
+					e);
 		}
 	}
-	
+
 	public ClientHandler createClientHandler(Socket socket) throws IOException {
 		ClientHandler handler = new ClientHandler();
-		
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		handler.setReader(reader);
-		
+
 		PrintWriter writer = new PrintWriter(socket.getOutputStream());
 		handler.setWriter(writer);
-		
-		handler.setUserDao(userDao);
-		handler.setFileDao(fileDao);
-		
+
+		handler.setUserDao(this.userDao);
+		handler.setFileDao(this.fileDao);
+
 		return handler;
 	}
 

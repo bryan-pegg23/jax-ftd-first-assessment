@@ -7,7 +7,7 @@ public class ClientMessage {
 
 	private String command;
 	private String content;
-	
+
 	public String getCommand() {
 		return this.command;
 	}

@@ -24,10 +24,11 @@ public class Main {
 	private static String password = "bondstone";
 	
 	public static void main(String[] args) throws ClassNotFoundException {
-		Class.forName(driver);
+		
 		ExecutorService executor = Executors.newCachedThreadPool();
 		
 		try (Connection conn = DriverManager.getConnection(url, username, password)) {
+			Class.forName(driver);
 			Server server = new Server();
 			server.setExecutor(executor);
 			
