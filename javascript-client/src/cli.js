@@ -25,7 +25,7 @@ cli
       let a = hash(args.password)
       a.then(function (hashedPassword){
         (fs.writeFile('output.json', JSON.stringify(`{clientMessage: {command: ${command}, content: ${args.username} ${hashedPassword}}}`) + '\n'))
-        server.write(JSON.stringify({clientMessage: {command: command, content: args.username + hashedPassword}}) + '\n')
+        server.write(JSON.stringify({clientMessage: {command: command, content: args.username + " " + hashedPassword}}) + '\n')
       })
       .catch((err) => cli.log(err))
     //  server.write(data)

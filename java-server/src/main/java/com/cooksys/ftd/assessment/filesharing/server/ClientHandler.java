@@ -74,8 +74,10 @@ public class ClientHandler implements Runnable {
 
 				ClientMessage message = (ClientMessage) unmarshaller.unmarshal(sr);
 				
-				if (message.getCommand() == "register") {
-					log.info("you made it to the register if staement");
+				log.debug(message.toString());
+				
+				if (message.getCommand().equals("register")) {
+					log.info("you made it to the register if statement");
 					StringWriter sw = new StringWriter();
 					ServerResponse<String> temp = CreateUser.newUser(message.getContent());
 					marshaller.marshal(temp.getData(), sw);
