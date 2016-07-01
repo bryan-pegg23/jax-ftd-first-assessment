@@ -5,6 +5,13 @@ import { hash, compare } from './hashing'
 
 const cli = vorpal()
 
+let server
+
+const closeConnection = () => {
+  server.end()
+}
+
+
 cli
   .delimiter('Arth$')
 
@@ -12,14 +19,16 @@ cli
   .command('register <username> <password>')
   .description('Registers user on server')
   .action(function (args, callback) {
-    let server = net.createConnection({port: 667}, () => {
+   server = net.createConnection({port: 667}, () => {
       let command = 'register'
-      let hashed = hash(args.password)
-      let hashedTo
-      hashed.then((hash) => hashedTo = hash)
-      const data = JSON.stringify(`ClientMessage: {${command}, content: ${args.username} ${hashed}}`)
-      fs.writeFile('output.json', data)
-      server.write(data)
+      let hash2
+      let a = hash(args.password)
+      a.then(function (hashedPassword){
+        (fs.writeFile('output.json', JSON.stringify(`{ClientMessage: {command: ${command}, content: ${args.username} ${hashedPassword}}}\n`)))
+        server.write(JSON.stringify(`{ClientMessage: {command: ${command}, content: ${args.username} ${hashedPassword}}}`) + '\n')
+      })
+      .catch((err) => cli.log(err))
+    //  server.write(data)
       this.log('Wrote to server')
       server.on('data', (data) => {
         const { serverResponse } = JSON.parse(data.toString())

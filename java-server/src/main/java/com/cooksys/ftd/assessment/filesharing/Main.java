@@ -25,9 +25,12 @@ public class Main {
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		
+		log.debug("Program started. Attempting to connect to SQL");
+		
 		ExecutorService executor = Executors.newCachedThreadPool();
 		
 		try (Connection conn = DriverManager.getConnection(url, username, password)) {
+			log.debug("SQL connection successful");
 			Class.forName(driver);
 			Server server = new Server();
 			server.setExecutor(executor);

@@ -24,8 +24,9 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
+		log.debug("Server run started");
 		try (ServerSocket serverSocket = new ServerSocket(667)) {
-			log.info("Starting server.");
+			log.info("Server started on port {}", 667);
 			while (true) {
 				Socket socket = serverSocket.accept();
 				ClientHandler handler = this.createClientHandler(socket);
@@ -33,7 +34,7 @@ public class Server implements Runnable {
 			}
 		} catch (IOException e) {
 			this.log.error(
-					"Fatal server connection error while listening for new connections.  Shutting down after error log.",
+					"The server encountered a fatal error while listening for more connections. Shutting down after error log.",
 					e);
 		}
 	}
